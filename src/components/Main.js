@@ -25,9 +25,26 @@ function getRangeRandom(low, high) {
 }
 
 /*
+* 获取0-30度之间的一个任意正负值
+*/
+function get30DegRandom() {
+	return ((Math.random() > 0.5? '':'-') + Math.ceil(Math.random() * 30));
+}
+
+/*
 * ImgFigure组件
 */
 class ImgFigure extends React.Component {
+	/*
+	* ImgFigure点击处理函数
+	*/
+	handleClick=(e)=>{
+		this.props.inverse();
+		e.stopPropagation();
+		e.preventDefault();
+	}
+
+
   render() {
   	let styleObj = {};
 
@@ -35,14 +52,30 @@ class ImgFigure extends React.Component {
   	if(this.props.range.pos) {
   		styleObj = this.props.range.pos;
   	}
+
+  	//如果图片的角度 有不为0的值，则使用
+  	if(this.props.range.rotate) {
+  		(['-moz-', '-ms-', '-webkit-', '']).forEach(function(value) {
+  			styleObj[value + 'transform'] = 'rotate(' + this.props.range.rotate + 'deg';
+  		}.bind(this));
+  	}
+
+  	var imgFigureClassName = 'img-figure';
+  	imgFigureClassName += this.props.range.isInverse?' is-inverse':'';
+
     return (
-      <figure className="img-figure" style={styleObj} ref ="figure">
+      <figure className={imgFigureClassName} style={styleObj} ref ="figure" onClick={this.handleClick}>
       	<img
       		src={this.props.data.imageURL}
       		alt={this.props.data.title}
       	/>
       	<figcaption>
       		<h2 className="img-title">{this.props.data.title}</h2>
+      		<div className="img-back" onClick={this.handleClick}>
+      			<p>
+      				{this.props.data.desc}
+      			</p>
+      		</div>
       	</figcaption>
       </figure>
     );
@@ -62,6 +95,8 @@ class GalleryByReactApp extends React.Component {
 		    		left: '0',
 		    		top: '0'
 		    	}
+		    	rotate: 0, //旋转角度
+		    	isInverse: false  //图片正反面
 		    }*/
 	    ]
 	  };
@@ -80,6 +115,21 @@ class GalleryByReactApp extends React.Component {
 			x: [0, 0],
 			topY: [0, 0]
 		}
+	}
+
+	/*
+	* 翻转图片
+	* @param index 输入当前被执行inverse操作的图片对应的图片信息数组的index值
+	* @return {function} 这是一个闭包函数，其内return一个真正待被执行的函数
+	*/
+	inverse = (index) => {
+		return function() {
+			var imgsRangeArr = this.state.imgsRangeArr;
+			imgsRangeArr[index].isInverse = !imgsRangeArr[index].isInverse;
+			this.setState({
+				imgsRangeArr: imgsRangeArr
+			});
+		}.bind(this);
 	}
 
 	/*
@@ -107,16 +157,22 @@ class GalleryByReactApp extends React.Component {
 		//首先居中centerIndex的图片
 		imgsRangeCenterArr[0].pos = centerPos;
 
+		//居中的centerIndex图片不需要旋转
+		imgsRangeCenterArr[0].rotate = 0;
+
 		//取出要布局在上册的图片的状态信息
 		topImgSpliceIndex = Math.ceil(Math.random() * (imgsRangeArr.length - topImgNum));
 		imgsRangeTopArr = imgsRangeArr.splice(topImgSpliceIndex, topImgNum);
 
 		//布局位于上侧的图片
 		imgsRangeTopArr.forEach(function (value, index) {
-			imgsRangeTopArr[index].pos = {
-				top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
-				left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
-			}
+			imgsRangeTopArr[index] = {
+				pos: {
+					top: getRangeRandom(vPosRangeTopY[0], vPosRangeTopY[1]),
+					left: getRangeRandom(vPosRangeX[0], vPosRangeX[1])
+				},
+				rotate: get30DegRandom()
+			};
 		});
 
 		//布局左右两侧的图片
@@ -129,10 +185,13 @@ class GalleryByReactApp extends React.Component {
 			} else {
 				hPosRangeLORX = hPosRangeRightSecX;
 			}
-			imgsRangeArr[i].pos = {
-				top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
-				left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
-			}
+			imgsRangeArr[i] = {
+				pos: {
+					top: getRangeRandom(hPosRangeY[0], hPosRangeY[1]),
+					left: getRangeRandom(hPosRangeLORX[0], hPosRangeLORX[1])
+				},
+				rotate: get30DegRandom()
+			};
 		}
 
 		if(imgsRangeTopArr && imgsRangeTopArr[0]) {
@@ -195,11 +254,13 @@ class GalleryByReactApp extends React.Component {
   				pos: {
   					left: 0,
   					top: 0
-  				}
+  				},
+  				rotate: 0,
+  				isInverse: false
   			}
   		}
 
-  		imgFigures.push(<ImgFigure data={value} ref={'imgFigure'+index} range={this.state.imgsRangeArr[index]} />);
+  		imgFigures.push(<ImgFigure data={value} ref={'imgFigure'+index} range={this.state.imgsRangeArr[index]} inverse = {this.inverse(index)} />);
   	}.bind(this));
     return (
       <section className="stage" ref="stage">
