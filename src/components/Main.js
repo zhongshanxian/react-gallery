@@ -36,7 +36,7 @@ class ImgFigure extends React.Component {
   		styleObj = this.props.range.pos;
   	}
     return (
-      <figure className="img-figure" style={styleObj}>
+      <figure className="img-figure" style={styleObj} ref ="figure">
       	<img
       		src={this.props.data.imageURL}
       		alt={this.props.data.title}
@@ -171,7 +171,7 @@ class GalleryByReactApp extends React.Component {
  		//计算左侧，右侧图片位置范围
  		this.Constant.hPosRange.leftSecX[0] = -halfImgW;
  		this.Constant.hPosRange.leftSecX[1] = halfStageW - halfImgW * 3;
- 		this.Constant.hPosRange.rightSecX[0] = halfStageW - halfImgW;
+ 		this.Constant.hPosRange.rightSecX[0] = halfStageW + halfImgW;
  		this.Constant.hPosRange.rightSecX[1] = stageW - halfImgW;
  		this.Constant.hPosRange.y[0] = -halfImgH;
  		this.Constant.hPosRange.y[1] = halfStageH - halfImgH;
@@ -179,8 +179,8 @@ class GalleryByReactApp extends React.Component {
  		//计算上侧图片位置范围
  		this.Constant.vPosRange.topY[0] = -halfImgH;
  		this.Constant.vPosRange.topY[1] = halfStageH - halfImgH * 3;
- 		this.Constant.vPosRange.x[0] = halfImgW - imgW;
- 		this.Constant.vPosRange.x[1] = halfImgW;
+ 		this.Constant.vPosRange.x[0] = halfStageW - imgW;
+ 		this.Constant.vPosRange.x[1] = halfStageW;
 
  		this.readrange(0);
 
