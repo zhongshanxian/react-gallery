@@ -319,12 +319,12 @@ class GalleryByReactApp extends React.Component {
   		}
 
   		imgFigures.push(
-  			<ImgFigure data={value} ref={'imgFigure'+index} range={this.state.imgsRangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)}
+  			<ImgFigure key={index} data={value} ref={'imgFigure'+index} range={this.state.imgsRangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)}
   			/>
   		);
 
   		controllerUnits.push(
-  			<ControllerUnit range={this.state.imgsRangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)}/>
+  			<ControllerUnit key={index} range={this.state.imgsRangeArr[index]} inverse = {this.inverse(index)} center = {this.center(index)}/>
   		);
   	}.bind(this));
     return (
